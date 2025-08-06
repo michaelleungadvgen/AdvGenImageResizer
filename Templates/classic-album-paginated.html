@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{albumTitle}}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: #f8f6f0;
+            color: #3a3a3a;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: #ecf0f1;
+            text-align: center;
+            padding: 3rem 2rem;
+            background-image: 
+                radial-gradient(circle at 25% 25%, #34495e 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, #34495e 0%, transparent 50%);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-style: italic;
+        }
+
+        .album-info {
+            background: white;
+            margin: 2rem auto;
+            max-width: 800px;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #3498db;
+        }
+
+        .album-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .stat {
+            padding: 1rem;
+            background: #ecf0f1;
+            border-radius: 4px;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .pagination-info {
+            background: white;
+            margin: 1rem auto;
+            max-width: 800px;
+            padding: 1rem 2rem;
+            border-radius: 4px;
+            text-align: center;
+            font-style: italic;
+            color: #7f8c8d;
+            border: 1px solid #ecf0f1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .photo-frame {
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 
+                0 1px 3px rgba(0,0,0,0.12),
+                0 4px 8px rgba(0,0,0,0.1),
+                inset 0 0 0 1px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .photo-frame:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 4px 8px rgba(0,0,0,0.15),
+                0 8px 16px rgba(0,0,0,0.15),
+                inset 0 0 0 1px rgba(0,0,0,0.1);
+        }
+
+        .photo-frame img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border: 1px solid #ddd;
+        }
+
+        .photo-caption {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .photo-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .photo-details {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-top: 0.5rem;
+        }
+
+        .photo-details span {
+            display: inline-block;
+            margin: 0 0.5rem;
+        }
+
+        .pagination {
+            background: white;
+            margin: 3rem auto;
+            max-width: 800px;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .pagination a, .pagination span {
+            padding: 0.75rem 1.25rem;
+            background: #ecf0f1;
+            border: 2px solid #bdc3c7;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .pagination a:hover {
+            background: #d5dbdb;
+            border-color: #95a5a6;
+            transform: translateY(-2px);
+        }
+
+        .pagination .current {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+
+        .pagination .prev, .pagination .next {
+            background: #34495e;
+            color: white;
+            border-color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .pagination .prev:hover, .pagination .next:hover {
+            background: #2c3e50;
+        }
+
+        .pagination .disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(44, 62, 80, 0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .lightbox img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border: 3px solid #ecf0f1;
+            border-radius: 4px;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+            background: #e74c3c;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid white;
+            transition: all 0.3s ease;
+        }
+
+        .lightbox-close:hover {
+            background: #c0392b;
+            transform: scale(1.1);
+        }
+
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+            background: #34495e;
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid white;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .lightbox-nav:hover {
+            background: #2c3e50;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .lightbox-prev {
+            left: -80px;
+        }
+
+        .lightbox-next {
+            right: -80px;
+        }
+
+        .footer {
+            background: #34495e;
+            color: #ecf0f1;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer p {
+            margin: 0.5rem 0;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .photo-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+            .album-stats { grid-template-columns: 1fr; }
+            .pagination { gap: 0.5rem; }
+            .pagination a, .pagination span { padding: 0.5rem 1rem; font-size: 0.9rem; }
+            .lightbox-content { margin: 1rem; padding: 15px; }
+            .lightbox-nav { width: 50px; height: 50px; font-size: 1.5rem; }
+            .lightbox-prev { left: -60px; }
+            .lightbox-next { right: -60px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>{{albumTitle}}</h1>
+        <p>{{albumDescription}}</p>
+    </header>
+
+    <div class="container">
+        <div class="album-info">
+            <div class="album-stats">
+                <div class="stat">
+                    <div class="stat-number">{{totalPhotoCount}}</div>
+                    <div>Total Photos</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">{{dateGenerated}}</div>
+                    <div>Created</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">Classic</div>
+                    <div>Album Style</div>
+                </div>
+                {{#if isPaginated}}
+                <div class="stat">
+                    <div class="stat-number">{{totalPages}}</div>
+                    <div>Pages</div>
+                </div>
+                {{/if}}
+            </div>
+        </div>
+
+        {{#if isPaginated}}
+        <div class="pagination-info">
+            📖 Page {{currentPage}} of {{totalPages}} • Displaying {{currentPagePhotoCount}} precious memories
+        </div>
+        {{/if}}
+
+        <div class="photo-grid" id="photo-grid">
+            {{#each photos}}
+            <div class="photo-frame" data-index="{{@index}}" data-src="{{this.relativePath}}" data-title="{{this.title}}">
+                <img src="{{this.relativePath}}" alt="{{this.title}}" loading="lazy">
+                <div class="photo-caption">
+                    <div class="photo-title">{{this.title}}</div>
+                    <div class="photo-details">
+                        <span>{{this.width}} × {{this.height}}</span>
+                        <span>•</span>
+                        <span>{{this.fileSizeFormatted}}</span>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+
+        {{#if isPaginated}}
+        <div class="pagination">
+            {{#if hasPrevPage}}
+            <a href="{{prevPageFile}}" class="prev">← Previous Page</a>
+            {{else}}
+            <span class="prev disabled">← Previous Page</span>
+            {{/if}}
+            
+            {{#each pageNumbers}}
+            {{#if this.isCurrent}}
+            <span class="current">{{this.number}}</span>
+            {{else}}
+            <a href="{{this.file}}">{{this.number}}</a>
+            {{/if}}
+            {{/each}}
+            
+            {{#if hasNextPage}}
+            <a href="{{nextPageFile}}" class="next">Next Page →</a>
+            {{else}}
+            <span class="next disabled">Next Page →</span>
+            {{/if}}
+        </div>
+        {{/if}}
+    </div>
+
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-content">
+            <div class="lightbox-close" id="lightbox-close">&times;</div>
+            <div class="lightbox-nav lightbox-prev" id="lightbox-prev">‹</div>
+            <div class="lightbox-nav lightbox-next" id="lightbox-next">›</div>
+            <img id="lightbox-img" src="" alt="">
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p><strong>{{albumTitle}}</strong></p>
+        <p>A classic photo album created with AdvGen Image Resizer</p>
+        <p>{{totalPhotoCount}} memories • Generated on {{dateGenerated}}</p>
+        {{#if isPaginated}}
+        <p>Page {{currentPage}} of {{totalPages}}</p>
+        {{/if}}
+    </footer>
+
+    <script>
+        // Safely collect photo data from DOM instead of template generation
+        const photoFrames = document.querySelectorAll('.photo-frame');
+        const photos = Array.from(photoFrames).map(frame => ({
+            src: frame.dataset.src,
+            title: frame.dataset.title,
+            index: parseInt(frame.dataset.index)
+        }));
+
+        let currentPhotoIndex = 0;
+        
+        console.log('Classic paginated album loaded with', photos.length, 'photos');
+
+        function openLightbox(index) {
+            if (photos.length === 0) return;
+            
+            currentPhotoIndex = index;
+            showCurrentPhoto();
+            
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function showCurrentPhoto() {
+            if (photos.length === 0) return;
+            
+            const photo = photos[currentPhotoIndex];
+            const img = document.getElementById('lightbox-img');
+            img.src = photo.src;
+            img.alt = photo.title;
+            
+            // Show/hide navigation arrows
+            const prevBtn = document.getElementById('lightbox-prev');
+            const nextBtn = document.getElementById('lightbox-next');
+            
+            if (photos.length <= 1) {
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'flex';
+                nextBtn.style.display = 'flex';
+            }
+        }
+
+        function nextImage() {
+            if (photos.length <= 1) return;
+            currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
+            showCurrentPhoto();
+        }
+
+        function prevImage() {
+            if (photos.length <= 1) return;
+            currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+            showCurrentPhoto();
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Click handlers for photo frames
+            photoFrames.forEach((frame, index) => {
+                frame.addEventListener('click', () => openLightbox(index));
+            });
+            
+            // Lightbox controls
+            document.getElementById('lightbox').addEventListener('click', closeLightbox);
+            document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+            document.getElementById('lightbox-prev').addEventListener('click', (e) => {
+                e.stopPropagation();
+                prevImage();
+            });
+            document.getElementById('lightbox-next').addEventListener('click', (e) => {
+                e.stopPropagation();
+                nextImage();
+            });
+            
+            // Prevent lightbox from closing when clicking content
+            document.querySelector('.lightbox-content').addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        });
+
+        // Keyboard support
+        document.addEventListener('keydown', function(e) {
+            if (document.getElementById('lightbox').classList.contains('active')) {
+                switch(e.key) {
+                    case 'Escape':
+                        closeLightbox();
+                        break;
+                    case 'ArrowRight':
+                        nextImage();
+                        break;
+                    case 'ArrowLeft':
+                        prevImage();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

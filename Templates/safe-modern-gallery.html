@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{albumTitle}}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 300;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            margin-bottom: 0.5rem;
+        }
+
+        .stats {
+            display: inline-flex;
+            gap: 2rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #95a5a6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .photo-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .photo-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .photo-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .photo-info {
+            padding: 1.5rem;
+        }
+
+        .photo-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .photo-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-top: 1rem;
+        }
+
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-content {
+            position: relative;
+            max-width: 95%;
+            max-height: 95%;
+        }
+
+        .lightbox img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            font-size: 3rem;
+            color: white;
+            cursor: pointer;
+            background: rgba(0,0,0,0.7);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+        .lightbox-close:hover {
+            background: rgba(0,0,0,0.9);
+        }
+
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+            background: rgba(0,0,0,0.7);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .lightbox-nav:hover {
+            background: rgba(0,0,0,0.9);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .lightbox-prev {
+            left: -80px;
+        }
+
+        .lightbox-next {
+            right: -80px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .gallery { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+            .stats { flex-direction: column; gap: 0.5rem; }
+            .lightbox-close { top: 10px; right: 10px; width: 40px; height: 40px; font-size: 2rem; }
+            .lightbox-nav { width: 50px; height: 50px; font-size: 1.5rem; }
+            .lightbox-prev { left: 10px; }
+            .lightbox-next { right: 10px; }
+            .lightbox-content { margin: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>{{albumTitle}}</h1>
+        <p>{{albumDescription}}</p>
+        <div class="stats">
+            <span>📸 {{totalPhotoCount}} Photos</span>
+            <span>📅 {{dateGenerated}}</span>
+            <span>🎨 Generated by AdvGen Image Resizer</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="gallery" id="gallery">
+            {{#each photos}}
+            <div class="photo-card" data-index="{{@index}}" data-src="{{this.relativePath}}" data-title="{{this.title}}">
+                <img src="{{this.relativePath}}" alt="{{this.title}}" loading="lazy">
+                <div class="photo-info">
+                    <div class="photo-title">{{this.title}}</div>
+                    <div class="photo-meta">
+                        <span>{{this.width}}x{{this.height}}</span>
+                        <span>{{this.fileSizeFormatted}}</span>
+                        <span>{{this.dateTaken}}</span>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-content">
+            <div class="lightbox-close" id="lightbox-close">&times;</div>
+            <div class="lightbox-nav lightbox-prev" id="lightbox-prev">‹</div>
+            <div class="lightbox-nav lightbox-next" id="lightbox-next">›</div>
+            <img id="lightbox-img" src="" alt="">
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Created with ❤️ using AdvGen Image Resizer</p>
+        <p>Modern Gallery Template • {{totalPhotoCount}} beautiful memories captured</p>
+    </footer>
+
+    <script>
+        // Safely collect photo data from DOM instead of template generation
+        const photoCards = document.querySelectorAll('.photo-card');
+        const photos = Array.from(photoCards).map(card => ({
+            src: card.dataset.src,
+            title: card.dataset.title,
+            index: parseInt(card.dataset.index)
+        }));
+
+        let currentPhotoIndex = 0;
+        
+        console.log('Safe gallery loaded with', photos.length, 'photos');
+
+        function openLightbox(index) {
+            if (photos.length === 0) return;
+            
+            currentPhotoIndex = index;
+            showCurrentPhoto();
+            
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function showCurrentPhoto() {
+            if (photos.length === 0) return;
+            
+            const photo = photos[currentPhotoIndex];
+            const img = document.getElementById('lightbox-img');
+            img.src = photo.src;
+            img.alt = photo.title;
+            
+            // Show/hide navigation arrows
+            const prevBtn = document.getElementById('lightbox-prev');
+            const nextBtn = document.getElementById('lightbox-next');
+            
+            if (photos.length <= 1) {
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'flex';
+                nextBtn.style.display = 'flex';
+            }
+        }
+
+        function nextImage() {
+            if (photos.length <= 1) return;
+            currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
+            showCurrentPhoto();
+        }
+
+        function prevImage() {
+            if (photos.length <= 1) return;
+            currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+            showCurrentPhoto();
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Click handlers for photo cards
+            photoCards.forEach((card, index) => {
+                card.addEventListener('click', () => openLightbox(index));
+            });
+            
+            // Lightbox controls
+            document.getElementById('lightbox').addEventListener('click', closeLightbox);
+            document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+            document.getElementById('lightbox-prev').addEventListener('click', (e) => {
+                e.stopPropagation();
+                prevImage();
+            });
+            document.getElementById('lightbox-next').addEventListener('click', (e) => {
+                e.stopPropagation();
+                nextImage();
+            });
+            
+            // Prevent lightbox from closing when clicking content
+            document.querySelector('.lightbox-content').addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        });
+
+        // Keyboard support
+        document.addEventListener('keydown', function(e) {
+            if (document.getElementById('lightbox').classList.contains('active')) {
+                switch(e.key) {
+                    case 'Escape':
+                        closeLightbox();
+                        break;
+                    case 'ArrowRight':
+                        nextImage();
+                        break;
+                    case 'ArrowLeft':
+                        prevImage();
+                        break;
+                }
+            }
+        });
+
+        // Lazy loading animation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        photoCards.forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>

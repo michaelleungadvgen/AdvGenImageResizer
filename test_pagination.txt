@@ -1,0 +1,39 @@
+Testing pagination functionality:
+
+1. UI Controls Added:
+   ✅ Photos Per Page dropdown (12, 24, 36, 48, or All)
+   ✅ Copy Original Images checkbox
+
+2. Templates Created:
+   ✅ modern-gallery-paginated.html - Modern responsive template with pagination
+   ✅ classic-album-paginated.html - Classic album template with pagination
+   ✅ Both templates support lightbox with full-size image viewing
+   ✅ Both templates have keyboard navigation (←/→ arrows, Esc)
+
+3. Backend Features:
+   ✅ PaginationHelper class for splitting photo collections
+   ✅ Image copying logic to create /images folder
+   ✅ Multi-page HTML generation with proper navigation links
+   ✅ Full-size image paths for lightbox viewing
+
+4. Template Variables Added:
+   ✅ isPaginated - Boolean flag for pagination mode
+   ✅ currentPage - Current page number
+   ✅ totalPages - Total number of pages
+   ✅ totalPhotoCount - Total photos across all pages
+   ✅ currentPagePhotoCount - Photos on current page
+   ✅ thumbnailPath - Path to thumbnail/display image
+   ✅ fullSizePath - Path to full-size image for lightbox
+
+5. Navigation Features:
+   ✅ Page numbers with current page highlighting
+   ✅ Previous/Next page buttons
+   ✅ Smart page number display (shows up to 7 pages centered around current)
+   ✅ Disabled state for first/last pages
+
+Key Features:
+- When user selects pagination (any value other than "All photos"), the system uses -paginated templates
+- Original images are copied to an /images subfolder when "Copy original images" is checked
+- Each page shows the specified number of photos with full navigation
+- Lightbox displays full-size images with keyboard navigation
+- Responsive design works on desktop and mobile devices

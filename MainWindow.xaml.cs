@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Forms;
 using SkiaSharp;
 using Image = System.Drawing.Image;
@@ -473,6 +475,298 @@ namespace AdvGenImageResizer
 
             var codecs = ImageCodecInfo.GetImageEncoders();
             return codecs.FirstOrDefault(codec => codec.MimeType == mimeType) ?? codecs.First(codec => codec.MimeType == "image/jpeg");
+        }
+
+        private async void GenerateAlbumButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (InputFolderPath.Text == "No folder selected..." || string.IsNullOrEmpty(InputFolderPath.Text))
+            {
+                ShowMessage("Please select an input folder first.");
+                return;
+            }
+
+            if (_imageFiles.Count == 0)
+            {
+                ShowMessage("No images found in the selected folder.");
+                return;
+            }
+
+            var saveDialog = new SaveFileDialog
+            {
+                Title = "Save Photo Album HTML",
+                Filter = "HTML Files (*.html)|*.html",
+                FileName = $"{AlbumTitleBox.Text.Replace(" ", "_")}_album.html"
+            };
+
+            if (saveDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                await GeneratePhotoAlbum(saveDialog.FileName);
+            }
+        }
+
+        private async Task GeneratePhotoAlbum(string outputPath)
+        {
+            try
+            {
+                ProgressSection.Visibility = Visibility.Visible;
+                GenerateAlbumButton.IsEnabled = false;
+                StartProcessingButton.IsEnabled = false;
+
+                var templateEngine = new TemplateEngine();
+                var photoInfos = new List<PhotoInfo>();
+
+                ProgressText.Text = "Gathering image information...";
+                ProcessingProgress.Value = 0;
+
+                // Get pagination settings
+                var photosPerPageItem = (ComboBoxItem)PhotosPerPageCombo.SelectedItem;
+                int photosPerPage = int.Parse(photosPerPageItem.Tag.ToString());
+                bool isPaginated = photosPerPage > 0;
+                bool copyOriginalImages = CopyOriginalImagesCheckBox.IsChecked ?? false;
+
+                // Get selected template
+                var selectedTemplate = ((ComboBoxItem)TemplateCombo.SelectedItem).Tag.ToString();
+                string templateName = isPaginated ? 
+                    selectedTemplate.Replace(".html", "-paginated.html") : 
+                    selectedTemplate;
+                var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", templateName);
+
+                if (!File.Exists(templatePath))
+                {
+                    ShowMessage($"Template file not found: {templatePath}");
+                    return;
+                }
+
+                // Create output directory for images if copying originals
+                string outputDir = Path.GetDirectoryName(outputPath);
+                string imagesDir = Path.Combine(outputDir, "images");
+                
+                if (copyOriginalImages)
+                {
+                    Directory.CreateDirectory(imagesDir);
+                }
+
+                // Process each image to get metadata
+                for (int i = 0; i < _imageFiles.Count; i++)
+                {
+                    var imagePath = _imageFiles[i];
+                    var fileName = Path.GetFileName(imagePath);
+                    
+                    ProgressText.Text = $"Processing {fileName} ({i + 1}/{_imageFiles.Count})";
+                    ProcessingProgress.Value = ((double)i / _imageFiles.Count) * (copyOriginalImages ? 50 : 75);
+
+                    try
+                    {
+                        var photoInfo = await Task.Run(() => GetPhotoInfo(imagePath, imagesDir, copyOriginalImages));
+                        photoInfos.Add(photoInfo);
+                    }
+                    catch (Exception)
+                    {
+                        // Skip problematic images but continue processing
+                        continue;
+                    }
+
+                    await Task.Delay(10);
+                }
+
+                if (copyOriginalImages)
+                {
+                    ProgressText.Text = "Copying original images...";
+                    await CopyOriginalImages(photoInfos, imagesDir);
+                    ProcessingProgress.Value = 75;
+                }
+
+                ProgressText.Text = "Generating HTML album...";
+                
+                string baseFileName = Path.GetFileNameWithoutExtension(outputPath);
+                
+                if (isPaginated)
+                {
+                    await GeneratePaginatedAlbum(templatePath, photoInfos, outputPath, baseFileName, photosPerPage);
+                }
+                else
+                {
+                    await GenerateSinglePageAlbum(templatePath, photoInfos, outputPath);
+                }
+
+                ProgressText.Text = "Album generation completed!";
+                ProcessingProgress.Value = 100;
+
+                var albumInfo = isPaginated ? 
+                    $"Photo album generated successfully!\n\nSaved to: {outputDir}\n\nThe album contains {photoInfos.Count} photos across {PaginationHelper.PaginateList(photoInfos, photosPerPage).Count} pages." :
+                    $"Photo album generated successfully!\n\nSaved to: {outputPath}\n\nThe album contains {photoInfos.Count} photos.";
+                
+                if (copyOriginalImages)
+                {
+                    albumInfo += $"\n\nOriginal images copied to: {imagesDir}";
+                }
+                
+                ShowMessage(albumInfo);
+            }
+            catch (Exception ex)
+            {
+                ShowMessage($"Error generating photo album: {ex.Message}");
+                ProgressText.Text = "Album generation failed.";
+            }
+            finally
+            {
+                GenerateAlbumButton.IsEnabled = true;
+                StartProcessingButton.IsEnabled = true;
+            }
+        }
+
+        private PhotoInfo GetPhotoInfo(string imagePath, string imagesDir = null, bool copyOriginals = false)
+        {
+            var fileInfo = new FileInfo(imagePath);
+            var fileName = fileInfo.Name;
+            
+            var photoInfo = new PhotoInfo
+            {
+                FileName = fileName,
+                FilePath = imagePath,
+                RelativePath = copyOriginals ? $"images/{fileName}" : fileName,
+                ThumbnailPath = copyOriginals ? $"images/{fileName}" : fileName,
+                FullSizePath = copyOriginals ? $"images/{fileName}" : fileName,
+                Title = Path.GetFileNameWithoutExtension(imagePath),
+                Description = "",
+                DateTaken = fileInfo.LastWriteTime,
+                FileSize = fileInfo.Length,
+                FileSizeFormatted = FormatFileSize(fileInfo.Length)
+            };
+
+            // Get image dimensions
+            try
+            {
+                var dimensions = GetImageDimensions(imagePath);
+                photoInfo.Width = dimensions.Width;
+                photoInfo.Height = dimensions.Height;
+            }
+            catch
+            {
+                photoInfo.Width = 0;
+                photoInfo.Height = 0;
+            }
+
+            return photoInfo;
+        }
+
+        private async Task CopyOriginalImages(List<PhotoInfo> photoInfos, string imagesDir)
+        {
+            for (int i = 0; i < photoInfos.Count; i++)
+            {
+                var photoInfo = photoInfos[i];
+                var destPath = Path.Combine(imagesDir, photoInfo.FileName);
+                
+                ProgressText.Text = $"Copying {photoInfo.FileName} ({i + 1}/{photoInfos.Count})";
+                ProcessingProgress.Value = 50 + ((double)i / photoInfos.Count) * 25;
+                
+                try
+                {
+                    await Task.Run(() => File.Copy(photoInfo.FilePath, destPath, overwrite: true));
+                }
+                catch (Exception)
+                {
+                    // Log error but continue with other images
+                    continue;
+                }
+                
+                await Task.Delay(10);
+            }
+        }
+
+        private async Task GenerateSinglePageAlbum(string templatePath, List<PhotoInfo> photoInfos, string outputPath)
+        {
+            var templateContent = await File.ReadAllTextAsync(templatePath);
+            var templateEngine = new TemplateEngine();
+            
+            templateEngine.SetVariable("albumTitle", AlbumTitleBox.Text);
+            templateEngine.SetVariable("albumDescription", AlbumDescriptionBox.Text);
+            templateEngine.SetVariable("photoCount", photoInfos.Count);
+            templateEngine.SetVariable("totalPhotoCount", photoInfos.Count);
+            templateEngine.SetVariable("currentPagePhotoCount", photoInfos.Count);
+            templateEngine.SetVariable("dateGenerated", DateTime.Now.ToString("yyyy-MM-dd"));
+            templateEngine.SetVariable("photos", photoInfos.Select(p => p.ToDictionary()).Cast<object>().ToList());
+            templateEngine.SetVariable("isPaginated", false);
+            templateEngine.SetVariable("hasPrevPage", false);
+            templateEngine.SetVariable("hasNextPage", false);
+            
+            var htmlContent = templateEngine.Render(templateContent);
+            await File.WriteAllTextAsync(outputPath, htmlContent);
+            
+            ProcessingProgress.Value = 90;
+        }
+
+        private async Task GeneratePaginatedAlbum(string templatePath, List<PhotoInfo> photoInfos, string outputPath, string baseFileName, int photosPerPage)
+        {
+            var templateContent = await File.ReadAllTextAsync(templatePath);
+            var pages = PaginationHelper.PaginateList(photoInfos, photosPerPage);
+            var outputDir = Path.GetDirectoryName(outputPath);
+            
+            for (int pageIndex = 0; pageIndex < pages.Count; pageIndex++)
+            {
+                var currentPage = pageIndex + 1;
+                var pagePhotos = pages[pageIndex];
+                var templateEngine = new TemplateEngine();
+                
+                // Set basic template variables
+                templateEngine.SetVariable("albumTitle", AlbumTitleBox.Text);
+                templateEngine.SetVariable("albumDescription", AlbumDescriptionBox.Text);
+                templateEngine.SetVariable("totalPhotoCount", photoInfos.Count);
+                templateEngine.SetVariable("currentPagePhotoCount", pagePhotos.Count);
+                templateEngine.SetVariable("dateGenerated", DateTime.Now.ToString("yyyy-MM-dd"));
+                templateEngine.SetVariable("photos", pagePhotos.Select(p => p.ToDictionary()).Cast<object>().ToList());
+                
+                // Set pagination variables
+                templateEngine.SetVariable("isPaginated", true);
+                var paginationData = PaginationHelper.CreatePaginationData(currentPage, pages.Count, baseFileName);
+                
+                // Debug output
+                System.Diagnostics.Debug.WriteLine($"Page {currentPage} of {pages.Count}:");
+                System.Diagnostics.Debug.WriteLine($"isPaginated: true");
+                foreach (var kvp in paginationData)
+                {
+                    // Special handling for pageNumbers array
+                    if (kvp.Key == "pageNumbers" && kvp.Value is List<Dictionary<string, object>> pageNumbersList)
+                    {
+                        templateEngine.SetVariable(kvp.Key, pageNumbersList.Cast<object>().ToList());
+                        System.Diagnostics.Debug.WriteLine($"{kvp.Key}: List with {pageNumbersList.Count} items");
+                    }
+                    else
+                    {
+                        templateEngine.SetVariable(kvp.Key, kvp.Value);
+                        System.Diagnostics.Debug.WriteLine($"{kvp.Key}: {kvp.Value}");
+                    }
+                }
+                
+                // Generate HTML for this page
+                var htmlContent = templateEngine.Render(templateContent);
+                
+                // Save page file
+                var pageFileName = currentPage == 1 ? 
+                    $"{baseFileName}.html" : 
+                    $"{baseFileName}_page{currentPage}.html";
+                var pageFilePath = Path.Combine(outputDir, pageFileName);
+                
+                await File.WriteAllTextAsync(pageFilePath, htmlContent);
+                
+                ProgressText.Text = $"Generated page {currentPage} of {pages.Count}";
+                ProcessingProgress.Value = 75 + ((double)pageIndex / pages.Count) * 15;
+                
+                await Task.Delay(10);
+            }
+        }
+
+        private string FormatFileSize(long bytes)
+        {
+            string[] sizes = { "B", "KB", "MB", "GB" };
+            double len = bytes;
+            int order = 0;
+            while (len >= 1024 && order < sizes.Length - 1)
+            {
+                order++;
+                len = len / 1024;
+            }
+            return $"{len:0.##} {sizes[order]}";
         }
 
         private void ShowMessage(string message)

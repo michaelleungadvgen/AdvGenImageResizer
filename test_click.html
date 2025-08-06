@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Click Test</title>
+    <style>
+        .photo-card {
+            width: 200px;
+            height: 200px;
+            background: #f0f0f0;
+            margin: 10px;
+            cursor: pointer;
+            border: 2px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .photo-card:hover {
+            background: #e0e0e0;
+            border-color: #007bff;
+        }
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .lightbox.active {
+            display: flex;
+        }
+        .lightbox-content {
+            position: relative;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 80%;
+            text-align: center;
+        }
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+        }
+        .close:hover {
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Click Test - Photo Album Generator</h1>
+    
+    <div class="photo-card" onclick="openLightbox(0)">
+        Click me - Photo 1
+    </div>
+    
+    <div class="photo-card" onclick="openLightbox(1)">
+        Click me - Photo 2
+    </div>
+    
+    <div class="photo-card" onclick="openLightbox(2)">
+        Click me - Photo 3
+    </div>
+
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <div class="lightbox-content" onclick="event.stopPropagation()">
+            <span class="close" onclick="closeLightbox()">&times;</span>
+            <div id="lightbox-content">
+                <h2 id="photo-title">Photo Title</h2>
+                <p>This is a test of the lightbox functionality.</p>
+                <p>Click the X or outside the box to close.</p>
+                <p>Press Escape key to close.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const photos = [
+            { title: "Test Photo 1", content: "This is the first test photo." },
+            { title: "Test Photo 2", content: "This is the second test photo." },
+            { title: "Test Photo 3", content: "This is the third test photo." }
+        ];
+
+        function openLightbox(index) {
+            console.log('Opening lightbox for photo:', index);
+            
+            const photo = photos[index];
+            document.getElementById('photo-title').textContent = photo.title;
+            document.getElementById('lightbox-content').innerHTML = `
+                <h2>${photo.title}</h2>
+                <p>${photo.content}</p>
+                <p><strong>Lightbox is working correctly!</strong></p>
+                <p>Index: ${index}</p>
+                <p>Click X or press Escape to close.</p>
+            `;
+            
+            document.getElementById('lightbox').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            console.log('Closing lightbox');
+            document.getElementById('lightbox').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('lightbox').classList.contains('active')) {
+                closeLightbox();
+            }
+        });
+
+        // Test that JavaScript is working
+        console.log('Click test JavaScript loaded successfully');
+        console.log('Photos array:', photos);
+    </script>
+</body>
+</html>

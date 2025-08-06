@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{albumTitle}}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 300;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            margin-bottom: 0.5rem;
+        }
+
+        .stats {
+            display: inline-flex;
+            gap: 2rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #95a5a6;
+        }
+
+        .pagination-info {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1rem 2rem;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #555;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .photo-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .photo-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .photo-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .photo-info {
+            padding: 1.5rem;
+        }
+
+        .photo-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .photo-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-top: 1rem;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+        }
+
+        .pagination a, .pagination span {
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .pagination a:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .pagination .current {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+
+        .pagination .prev, .pagination .next {
+            padding: 0.75rem 1.5rem;
+            background: #3498db;
+            color: white;
+            font-weight: 600;
+        }
+
+        .pagination .prev:hover, .pagination .next:hover {
+            background: #2980b9;
+        }
+
+        .pagination .disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-content {
+            position: relative;
+            max-width: 95%;
+            max-height: 95%;
+        }
+
+        .lightbox img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            font-size: 3rem;
+            color: white;
+            cursor: pointer;
+            background: rgba(0,0,0,0.7);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+        .lightbox-close:hover {
+            background: rgba(0,0,0,0.9);
+        }
+
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+            background: rgba(0,0,0,0.7);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .lightbox-nav:hover {
+            background: rgba(0,0,0,0.9);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .lightbox-prev {
+            left: -80px;
+        }
+
+        .lightbox-next {
+            right: -80px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .gallery { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+            .stats { flex-direction: column; gap: 0.5rem; }
+            .pagination { gap: 0.5rem; }
+            .pagination a, .pagination span { padding: 0.5rem 0.75rem; font-size: 0.9rem; }
+            .lightbox-close { top: 10px; right: 10px; width: 40px; height: 40px; font-size: 2rem; }
+            .lightbox-nav { width: 50px; height: 50px; font-size: 1.5rem; }
+            .lightbox-prev { left: 10px; }
+            .lightbox-next { right: 10px; }
+            .lightbox-content { margin: 1rem; }
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: #85c5d4;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            height: 50px;
+            width: auto;
+        }
+
+        .nav-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+            .nav-links a {
+                color: white;
+                text-decoration: none;
+                padding: 8px 16px;
+                border-radius: 20px;
+                transition: background 0.3s ease;
+                font-size: 14px;
+            }
+
+                .nav-links a:hover {
+                    background: rgba(255,255,255,0.2);
+                }
+
+                .nav-links a.active {
+                    background: rgba(255,255,255,0.3);
+                    font-weight: 600;
+                }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #85c5d4 0%, #6bb0c0 100%);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+        }
+
+            .hero h1 {
+                font-size: 3rem;
+                font-weight: 700;
+                margin-bottom: 20px;
+                text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            }
+
+            .hero p {
+                font-size: 1.2rem;
+                margin-bottom: 30px;
+                opacity: 0.9;
+            }
+
+        .week-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .week-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+            .week-btn:hover {
+                background: rgba(255,255,255,0.3);
+                transform: translateY(-2px);
+            }
+
+            .week-btn.current {
+                background: white;
+                color: #85c5d4;
+                border-color: white;
+            }
+
+        /* Comparison Section */
+        .comparison-section {
+            padding: 50px 0;
+            background: white;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #85c5d4;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .retailer-logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 60px;
+            margin-bottom: 40px;
+        }
+
+        .retailer-logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            padding: 20px 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+            .retailer-logo:hover {
+                transform: translateY(-5px);
+            }
+
+        .coles-logo {
+            background: #e31e24;
+            color: white;
+        }
+
+        .woolworths-logo {
+            background: #00a651;
+            color: white;
+        }
+
+        .vs-separator {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #85c5d4;
+        }
+
+        /* Price Comparison Grid */
+        .price-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .comparison-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            .comparison-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            }
+
+        .card-header {
+            background: #85c5d4;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .product-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .product-details {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .price-comparison {
+            padding: 25px;
+        }
+
+        .store-price {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+            .store-price:last-child {
+                border-bottom: none;
+            }
+
+        .store-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .store-badge {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+            .store-badge.coles {
+                background: #e31e24;
+            }
+
+            .store-badge.woolworths {
+                background: #00a651;
+            }
+
+        .store-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .price-info {
+            text-align: right;
+        }
+
+        .current-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .original-price {
+            font-size: 0.9rem;
+            color: #999;
+            text-decoration: line-through;
+            margin-right: 8px;
+        }
+
+        .savings {
+            background: #00a651;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .best-deal {
+            background: #ffd700;
+            color: #333;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        .special-badge {
+            background: #ff6b6b;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            background: #f8f9fa;
+            padding: 50px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #85c5d4;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        /* Footer */
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-logo {
+            height: 40px;
+        }
+
+        .footer-text {
+            flex: 1;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+
+            .footer-links a {
+                color: #bdc3c7;
+                text-decoration: none;
+                transition: color 0.3s ease;
+            }
+
+                .footer-links a:hover {
+                    color: white;
+                }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .retailer-logos {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .week-selector {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .price-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <img src="https://www.michaelleung.info/images/logo_ml_3.png" alt="Michael" class="logo">
+                <div class="nav-title">{{albumTitle}}</div>
+               
+               
+                <nav class="nav-links">
+                    <a href="https://www.michaelleung.info/">Home</a>
+                    <a href="#" class="active">Photo</a>
+                    <a href="https://buymeacoffee.com/advgen">Buy Me a Coffee</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+    <div class="pagination-info">
+        <p>{{albumDescription}}</p>
+        <div class="stats">
+            <span>📸 {{totalPhotoCount}} Photos</span>
+            <span>📅 {{dateGenerated}}</span>
+            <span>🎨 Generated by AdvGen Image Resizer</span>
+        </div>
+    </div>
+    <div class="pagination-info">
+        Page {{currentPage}} of {{totalPages}} • Showing {{currentPagePhotoCount}} of {{totalPhotoCount}} photos
+    </div>
+
+
+    <div class="container">
+        <div class="gallery" id="gallery">
+            {{#each photos}}
+            <div class="photo-card" data-index="{{@index}}" data-src="{{this.relativePath}}" data-title="{{this.title}}">
+                <img src="{{this.relativePath}}" alt="{{this.title}}" loading="lazy">
+                <div class="photo-info">
+                    <div class="photo-title">{{this.title}}</div>
+                    <div class="photo-meta">
+                        <span>{{this.width}}x{{this.height}}</span>
+                        <span>{{this.fileSizeFormatted}}</span>
+                        <span>{{this.dateTaken}}</span>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+
+        {{#if isPaginated}}
+        <div class="pagination">
+            {{#if hasPrevPage}}
+            <a href="{{prevPageFile}}" class="prev">← Previous</a>
+            {{else}}
+            <span class="prev disabled">← Previous</span>
+            {{/if}}
+
+            {{#each pageNumbers}}
+            {{#if this.isCurrent}}
+            <span class="current">{{this.number}}</span>
+            {{else}}
+            <a href="{{this.file}}">{{this.number}}</a>
+            {{/if}}
+            {{/each}}
+
+            {{#if hasNextPage}}
+            <a href="{{nextPageFile}}" class="next">Next →</a>
+            {{else}}
+            <span class="next disabled">Next →</span>
+            {{/if}}
+        </div>
+        {{/if}}
+    </div>
+
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-content">
+            <div class="lightbox-close" id="lightbox-close">&times;</div>
+            <div class="lightbox-nav lightbox-prev" id="lightbox-prev">‹</div>
+            <div class="lightbox-nav lightbox-next" id="lightbox-next">›</div>
+            <img id="lightbox-img" src="" alt="">
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Created with ❤️ using AdvGen Image Resizer</p>
+        <p>Modern Gallery Template • {{currentPagePhotoCount}} beautiful memories captured</p>
+    </footer>
+
+    <script>
+        // Safely collect photo data from DOM instead of template generation
+        const photoCards = document.querySelectorAll('.photo-card');
+        const photos = Array.from(photoCards).map(card => ({
+            src: card.dataset.src,
+            title: card.dataset.title,
+            index: parseInt(card.dataset.index)
+        }));
+
+        let currentPhotoIndex = 0;
+
+        console.log('Paginated gallery loaded with', photos.length, 'photos');
+
+        function openLightbox(index) {
+            if (photos.length === 0) return;
+
+            currentPhotoIndex = index;
+            showCurrentPhoto();
+
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function showCurrentPhoto() {
+            if (photos.length === 0) return;
+
+            const photo = photos[currentPhotoIndex];
+            const img = document.getElementById('lightbox-img');
+            img.src = photo.src;
+            img.alt = photo.title;
+
+            // Show/hide navigation arrows
+            const prevBtn = document.getElementById('lightbox-prev');
+            const nextBtn = document.getElementById('lightbox-next');
+
+            if (photos.length <= 1) {
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'flex';
+                nextBtn.style.display = 'flex';
+            }
+        }
+
+        function nextImage() {
+            if (photos.length <= 1) return;
+            currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
+            showCurrentPhoto();
+        }
+
+        function prevImage() {
+            if (photos.length <= 1) return;
+            currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+            showCurrentPhoto();
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function () {
+            // Click handlers for photo cards
+            photoCards.forEach((card, index) => {
+                card.addEventListener('click', () => openLightbox(index));
+            });
+
+            // Lightbox controls
+            document.getElementById('lightbox').addEventListener('click', closeLightbox);
+            document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+            document.getElementById('lightbox-prev').addEventListener('click', (e) => {
+                e.stopPropagation();
+                prevImage();
+            });
+            document.getElementById('lightbox-next').addEventListener('click', (e) => {
+                e.stopPropagation();
+                nextImage();
+            });
+
+            // Prevent lightbox from closing when clicking content
+            document.querySelector('.lightbox-content').addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        });
+
+        // Keyboard support
+        document.addEventListener('keydown', function (e) {
+            if (document.getElementById('lightbox').classList.contains('active')) {
+                switch (e.key) {
+                    case 'Escape':
+                        closeLightbox();
+                        break;
+                    case 'ArrowRight':
+                        nextImage();
+                        break;
+                    case 'ArrowLeft':
+                        prevImage();
+                        break;
+                }
+            }
+        });
+
+        // Lazy loading animation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        photoCards.forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>

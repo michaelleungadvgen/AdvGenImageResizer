@@ -8,7 +8,12 @@
       "Bash(start dotnet run)",
       "Bash(rd:*)",
       "Bash(dotnet build:*)",
-      "Bash(dotnet list:*)"
+      "Bash(dotnet list:*)",
+      "Bash(mkdir:*)",
+      "Bash(ls:*)",
+      "Bash(csc:*)",
+      "Bash(test_regex_pattern.exe)",
+      "Bash(./test_regex_pattern.exe)"
     ],
     "deny": []
   }

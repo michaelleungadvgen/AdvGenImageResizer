@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{albumTitle}}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: #f8f6f0;
+            color: #3a3a3a;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: #ecf0f1;
+            text-align: center;
+            padding: 3rem 2rem;
+            background-image: 
+                radial-gradient(circle at 25% 25%, #34495e 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, #34495e 0%, transparent 50%);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-style: italic;
+        }
+
+        .album-info {
+            background: white;
+            margin: 2rem auto;
+            max-width: 800px;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #3498db;
+        }
+
+        .album-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .stat {
+            padding: 1rem;
+            background: #ecf0f1;
+            border-radius: 4px;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .photo-frame {
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 
+                0 1px 3px rgba(0,0,0,0.12),
+                0 4px 8px rgba(0,0,0,0.1),
+                inset 0 0 0 1px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .photo-frame:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 4px 8px rgba(0,0,0,0.15),
+                0 8px 16px rgba(0,0,0,0.15),
+                inset 0 0 0 1px rgba(0,0,0,0.1);
+        }
+
+        .photo-frame img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border: 1px solid #ddd;
+        }
+
+        .photo-caption {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .photo-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .photo-details {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-top: 0.5rem;
+        }
+
+        .photo-details span {
+            display: inline-block;
+            margin: 0 0.5rem;
+        }
+
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(44, 62, 80, 0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        .lightbox img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border: 3px solid white;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+            background: #e74c3c;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid white;
+            transition: all 0.3s ease;
+        }
+
+        .lightbox-close:hover {
+            background: #c0392b;
+            transform: scale(1.1);
+        }
+
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+            background: #34495e;
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid white;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .lightbox-nav:hover {
+            background: #2c3e50;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .lightbox-prev {
+            left: -80px;
+        }
+
+        .lightbox-next {
+            right: -80px;
+        }
+
+        .footer {
+            background: #34495e;
+            color: #ecf0f1;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer p {
+            margin: 0.5rem 0;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .photo-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+            .album-stats { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>{{albumTitle}}</h1>
+        <p>{{albumDescription}}</p>
+    </header>
+
+    <div class="container">
+        <div class="album-info">
+            <div class="album-stats">
+                <div class="stat">
+                    <div class="stat-number">{{photoCount}}</div>
+                    <div>Photos</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">{{dateGenerated}}</div>
+                    <div>Created</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">Classic</div>
+                    <div>Album Style</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="photo-grid">
+            {{#each photos}}
+            <div class="photo-frame" onclick="openLightbox({{@index}})">
+                <img src="{{this.relativePath}}" alt="{{this.title}}" loading="lazy">
+                <div class="photo-caption">
+                    <div class="photo-title">{{this.title}}</div>
+                    <div class="photo-details">
+                        <span>{{this.width}} × {{this.height}}</span>
+                        <span>•</span>
+                        <span>{{this.fileSizeFormatted}}</span>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <div class="lightbox-content" onclick="event.stopPropagation()">
+            <div class="lightbox-close" onclick="closeLightbox()">&times;</div>
+            <div class="lightbox-nav lightbox-prev" onclick="prevImage()" id="lightbox-prev">‹</div>
+            <div class="lightbox-nav lightbox-next" onclick="nextImage()" id="lightbox-next">›</div>
+            <img id="lightbox-img" src="" alt="">
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p><strong>{{albumTitle}}</strong></p>
+        <p>A classic photo album created with AdvGen Image Resizer</p>
+        <p>{{photoCount}} memories • Generated on {{dateGenerated}}</p>
+    </footer>
+
+    <script>
+        const photos = [
+            {{#each photos}}
+            {
+                src: "{{this.relativePath}}",
+                title: "{{this.title}}"
+            }{{#unless @last}},{{/unless}}
+            {{/each}}
+        ];
+
+        let currentPhotoIndex = 0;
+
+        function openLightbox(index) {
+            if (photos.length === 0) return;
+            
+            currentPhotoIndex = index;
+            showCurrentPhoto();
+            document.getElementById('lightbox').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function showCurrentPhoto() {
+            if (photos.length === 0) return;
+            
+            const photo = photos[currentPhotoIndex];
+            const img = document.getElementById('lightbox-img');
+            img.src = photo.src;
+            img.alt = photo.title;
+            
+            // Show/hide navigation arrows
+            const prevBtn = document.getElementById('lightbox-prev');
+            const nextBtn = document.getElementById('lightbox-next');
+            
+            if (photos.length <= 1) {
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'flex';
+                nextBtn.style.display = 'flex';
+            }
+        }
+
+        function nextImage() {
+            if (photos.length <= 1) return;
+            currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
+            showCurrentPhoto();
+        }
+
+        function prevImage() {
+            if (photos.length <= 1) return;
+            currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+            showCurrentPhoto();
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (document.getElementById('lightbox').classList.contains('active')) {
+                switch(e.key) {
+                    case 'Escape':
+                        closeLightbox();
+                        break;
+                    case 'ArrowRight':
+                        nextImage();
+                        break;
+                    case 'ArrowLeft':
+                        prevImage();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

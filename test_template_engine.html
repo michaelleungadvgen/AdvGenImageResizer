@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Template Engine Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .pass { background: #d4edda; }
+        .fail { background: #f8d7da; }
+    </style>
+</head>
+<body>
+    <h1>Template Engine Test</h1>
+    
+    <div class="test-section">
+        <h2>Basic Variables</h2>
+        <p>Album Title: {{albumTitle}}</p>
+        <p>Current Page: {{currentPage}}</p>
+        <p>Total Pages: {{totalPages}}</p>
+    </div>
+    
+    <div class="test-section">
+        <h2>Simple Conditionals</h2>
+        {{#if hasPrevPage}}
+        <p>✅ Has Previous Page (should show if hasPrevPage = true)</p>
+        {{else}}
+        <p>❌ No Previous Page (should show if hasPrevPage = false)</p>
+        {{/if}}
+        
+        {{#if hasNextPage}}
+        <p>✅ Has Next Page (should show if hasNextPage = true)</p>
+        {{else}}
+        <p>❌ No Next Page (should show if hasNextPage = false)</p>
+        {{/if}}
+    </div>
+    
+    <div class="test-section">
+        <h2>Loop with Conditionals</h2>
+        <p>Page Numbers:</p>
+        {{#each pageNumbers}}
+        <span>
+        {{#if this.isCurrent}}
+        [<strong>{{this.number}}</strong>]
+        {{else}}
+        <a href="{{this.file}}">{{this.number}}</a>
+        {{/if}}
+        </span>
+        {{/each}}
+    </div>
+    
+    <div class="test-section">
+        <h2>Debug Info</h2>
+        <p>This template tests:</p>
+        <ul>
+            <li>✅ Basic variable substitution</li>
+            <li>✅ Simple if/else conditionals</li>
+            <li>✅ Loops with {{#each}}</li>
+            <li>✅ Conditionals inside loops with {{#if this.property}}</li>
+        </ul>
+    </div>
+</body>
+</html>

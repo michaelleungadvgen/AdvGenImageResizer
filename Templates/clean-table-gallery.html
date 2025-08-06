@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{albumTitle}}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            color: #212529;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+            background: linear-gradient(135deg, #85c5d4 0%, #6ab7c7 100%);
+            border-radius: 12px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(133, 197, 212, 0.3);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        /* Photo Grid Table */
+        .photo-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #85c5d4 0%, #6ab7c7 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            display: grid;
+            grid-template-columns: 120px 1fr 120px 100px;
+            gap: 1rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            align-items: center;
+        }
+
+        .photo-row {
+            display: grid;
+            grid-template-columns: 120px 1fr 120px 100px;
+            gap: 1rem;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e9ecef;
+            align-items: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .photo-row:hover {
+            background: #f8f9fa;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .photo-row:last-child {
+            border-bottom: none;
+        }
+
+        .photo-thumbnail {
+            width: 100px;
+            height: 75px;
+            border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .photo-row:hover .photo-thumbnail {
+            transform: scale(1.05);
+        }
+
+        .photo-info h3 {
+            font-size: 1.1rem;
+            color: #495057;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .photo-info p {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 0.1rem;
+        }
+
+        .photo-date {
+            color: #85c5d4;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .photo-size {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .pagination a,
+        .pagination span {
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            color: #495057;
+            background: white;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            min-width: 44px;
+            text-align: center;
+        }
+
+        .pagination a:hover {
+            background: #85c5d4;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(133, 197, 212, 0.3);
+        }
+
+        .pagination .current {
+            background: linear-gradient(135deg, #85c5d4 0%, #6ab7c7 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(133, 197, 212, 0.4);
+        }
+
+        .pagination .disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f8f9fa;
+        }
+
+        .pagination .prev,
+        .pagination .next {
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+        }
+
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .lightbox img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .lightbox-info {
+            padding: 1.5rem;
+            background: white;
+        }
+
+        .lightbox-info h3 {
+            margin-bottom: 0.5rem;
+            color: #495057;
+        }
+
+        .lightbox-info p {
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            color: #495057;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .lightbox-close:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            color: #495057;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .lightbox-nav:hover {
+            background: white;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .lightbox-prev {
+            left: 1rem;
+        }
+
+        .lightbox-next {
+            right: 1rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .table-header,
+            .photo-row {
+                grid-template-columns: 80px 1fr 80px;
+                gap: 0.75rem;
+                padding: 1rem;
+            }
+
+            .photo-size {
+                display: none;
+            }
+
+            .photo-thumbnail {
+                width: 70px;
+                height: 55px;
+            }
+
+            .pagination a,
+            .pagination span {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .table-header,
+            .photo-row {
+                grid-template-columns: 60px 1fr;
+                gap: 0.5rem;
+            }
+
+            .photo-date {
+                display: none;
+            }
+
+            .photo-thumbnail {
+                width: 50px;
+                height: 40px;
+            }
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: #85c5d4;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            height: 50px;
+            width: auto;
+        }
+
+        .nav-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+            .nav-links a {
+                color: white;
+                text-decoration: none;
+                padding: 8px 16px;
+                border-radius: 20px;
+                transition: background 0.3s ease;
+                font-size: 14px;
+            }
+
+                .nav-links a:hover {
+                    background: rgba(255,255,255,0.2);
+                }
+
+                .nav-links a.active {
+                    background: rgba(255,255,255,0.3);
+                    font-weight: 600;
+                }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #85c5d4 0%, #6bb0c0 100%);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+        }
+
+            .hero h1 {
+                font-size: 3rem;
+                font-weight: 700;
+                margin-bottom: 20px;
+                text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            }
+
+            .hero p {
+                font-size: 1.2rem;
+                margin-bottom: 30px;
+                opacity: 0.9;
+            }
+
+        .week-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .week-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+            .week-btn:hover {
+                background: rgba(255,255,255,0.3);
+                transform: translateY(-2px);
+            }
+
+            .week-btn.current {
+                background: white;
+                color: #85c5d4;
+                border-color: white;
+            }
+
+        /* Comparison Section */
+        .comparison-section {
+            padding: 50px 0;
+            background: white;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #85c5d4;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .retailer-logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 60px;
+            margin-bottom: 40px;
+        }
+
+        .retailer-logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            padding: 20px 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+            .retailer-logo:hover {
+                transform: translateY(-5px);
+            }
+
+        .coles-logo {
+            background: #e31e24;
+            color: white;
+        }
+
+        .woolworths-logo {
+            background: #00a651;
+            color: white;
+        }
+
+        .vs-separator {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #85c5d4;
+        }
+
+        /* Price Comparison Grid */
+        .price-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .comparison-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            .comparison-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            }
+
+        .card-header {
+            background: #85c5d4;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .product-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .product-details {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .price-comparison {
+            padding: 25px;
+        }
+
+        .store-price {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+            .store-price:last-child {
+                border-bottom: none;
+            }
+
+        .store-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .store-badge {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+            .store-badge.coles {
+                background: #e31e24;
+            }
+
+            .store-badge.woolworths {
+                background: #00a651;
+            }
+
+        .store-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .price-info {
+            text-align: right;
+        }
+
+        .current-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .original-price {
+            font-size: 0.9rem;
+            color: #999;
+            text-decoration: line-through;
+            margin-right: 8px;
+        }
+
+        .savings {
+            background: #00a651;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .best-deal {
+            background: #ffd700;
+            color: #333;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        .special-badge {
+            background: #ff6b6b;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            background: #f8f9fa;
+            padding: 50px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #85c5d4;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        /* Footer */
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-logo {
+            height: 40px;
+        }
+
+        .footer-text {
+            flex: 1;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+
+            .footer-links a {
+                color: #bdc3c7;
+                text-decoration: none;
+                transition: color 0.3s ease;
+            }
+
+                .footer-links a:hover {
+                    color: white;
+                }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .retailer-logos {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .week-selector {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .price-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <img src="https://www.michaelleung.info/images/logo_ml_3.png" alt="梁志明" class="logo">
+                <div class="nav-title">{{albumTitle}}</div>
+                <nav class="nav-links">
+                    <a href="https://www.michaelleung.info/">Home</a>
+                    <a href="#" class="active">Photo</a>
+                    <a href="https://buymeacoffee.com/advgen">Buy Me a Coffee</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>{{albumTitle}}</h1>
+            <p>{{albumDescription}}</p>
+        </div>
+
+        <!-- Photo Table -->
+        <div class="photo-table">
+            <div class="table-header">
+                <div>Preview</div>
+                <div>Photo Details</div>
+                <div>Date</div>
+                <div>Size</div>
+            </div>
+
+            {{#each photos}}
+            <div class="photo-row" data-index="{{@index}}" data-src="{{this.relativePath}}" data-title="{{this.title}}">
+                <img src="{{this.thumbnailPath}}" alt="{{this.title}}" class="photo-thumbnail" loading="lazy">
+                <div class="photo-info">
+                    <h3>{{this.title}}</h3>
+                    <p>{{this.fileName}}</p>
+                    <p>{{this.width}} × {{this.height}} pixels</p>
+                </div>
+                <div class="photo-date">{{this.dateTaken}}</div>
+                <div class="photo-size">{{this.fileSizeFormatted}}</div>
+            </div>
+            {{/each}}
+        </div>
+
+        <!-- Pagination -->
+        {{#if isPaginated}}
+        <div class="pagination">
+            {{#if hasPrevPage}}
+            <a href="{{prevPageFile}}" class="prev">← Previous</a>
+            {{else}}
+            <span class="prev disabled">← Previous</span>
+            {{/if}}
+            
+            {{#each pageNumbers}}
+            {{#if this.isCurrent}}
+            <span class="current">{{this.number}}</span>
+            {{else}}
+            <a href="{{this.file}}">{{this.number}}</a>
+            {{/if}}
+            {{/each}}
+            
+            {{#if hasNextPage}}
+            <a href="{{nextPageFile}}" class="next">Next →</a>
+            {{else}}
+            <span class="next disabled">Next →</span>
+            {{/if}}
+        </div>
+        {{/if}}
+    </div>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox">
+        <div class="lightbox-content">
+            <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+            <button class="lightbox-nav lightbox-prev" onclick="prevImage()">‹</button>
+            <button class="lightbox-nav lightbox-next" onclick="nextImage()">›</button>
+            <img id="lightbox-image" src="" alt="">
+            <div class="lightbox-info">
+                <h3 id="lightbox-title"></h3>
+                <p id="lightbox-filename"></p>
+                <p id="lightbox-dimensions"></p>
+                <p id="lightbox-date"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Collect photo data from DOM
+        const photoRows = document.querySelectorAll('.photo-row');
+        const photos = Array.from(photoRows).map(row => ({
+            src: row.dataset.src,
+            title: row.dataset.title,
+            filename: row.querySelector('.photo-info p').textContent,
+            dimensions: row.querySelector('.photo-info p:nth-child(3)').textContent,
+            date: row.querySelector('.photo-date') ? row.querySelector('.photo-date').textContent : '',
+            thumbnail: row.querySelector('.photo-thumbnail').src
+        }));
+
+        let currentIndex = 0;
+
+        // Add click listeners to photo rows
+        photoRows.forEach((row, index) => {
+            row.addEventListener('click', () => openLightbox(index));
+        });
+
+        function openLightbox(index) {
+            currentIndex = index;
+            const photo = photos[index];
+            
+            document.getElementById('lightbox-image').src = photo.src;
+            document.getElementById('lightbox-title').textContent = photo.title;
+            document.getElementById('lightbox-filename').textContent = photo.filename;
+            document.getElementById('lightbox-dimensions').textContent = photo.dimensions;
+            document.getElementById('lightbox-date').textContent = photo.date;
+            
+            document.getElementById('lightbox').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function nextImage() {
+            currentIndex = (currentIndex + 1) % photos.length;
+            openLightbox(currentIndex);
+        }
+
+        function prevImage() {
+            currentIndex = (currentIndex - 1 + photos.length) % photos.length;
+            openLightbox(currentIndex);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (document.getElementById('lightbox').classList.contains('active')) {
+                if (e.key === 'Escape') closeLightbox();
+                if (e.key === 'ArrowRight') nextImage();
+                if (e.key === 'ArrowLeft') prevImage();
+            }
+        });
+
+        // Close lightbox when clicking outside image
+        document.getElementById('lightbox').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeLightbox();
+        });
+    </script>
+</body>
+</html>

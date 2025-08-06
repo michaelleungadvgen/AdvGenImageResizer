@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pagination Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 2px solid #007bff; background: #f8f9fa; }
+        .debug { background: #fff3cd; border: 2px solid #ffc107; padding: 10px; margin: 10px 0; }
+        .pagination { text-align: center; margin: 20px 0; }
+        .pagination a, .pagination span { 
+            padding: 8px 12px; 
+            margin: 0 4px; 
+            background: #f8f9fa; 
+            border: 1px solid #dee2e6; 
+            text-decoration: none; 
+        }
+        .pagination .current { background: #007bff; color: white; }
+        .pagination .disabled { opacity: 0.5; }
+    </style>
+</head>
+<body>
+    <h1>Pagination Debug Test</h1>
+    
+    <div class="debug">
+        <h3>🔍 Variable Debug Info:</h3>
+        <p><strong>isPaginated:</strong> {{isPaginated}}</p>
+        <p><strong>currentPage:</strong> {{currentPage}}</p>
+        <p><strong>totalPages:</strong> {{totalPages}}</p>
+        <p><strong>hasPrevPage:</strong> {{hasPrevPage}}</p>
+        <p><strong>hasNextPage:</strong> {{hasNextPage}}</p>
+        <p><strong>prevPageFile:</strong> {{prevPageFile}}</p>
+        <p><strong>nextPageFile:</strong> {{nextPageFile}}</p>
+    </div>
+
+    <div class="test-section">
+        <h3>🧪 Simple Conditional Test:</h3>
+        <p><strong>Test 1 - isPaginated:</strong></p>
+        {{#if isPaginated}}
+        <span style="color: green;">✅ isPaginated is TRUE</span>
+        {{else}}
+        <span style="color: red;">❌ isPaginated is FALSE</span>
+        {{/if}}
+
+        <p><strong>Test 2 - hasPrevPage:</strong></p>
+        {{#if hasPrevPage}}
+        <span style="color: green;">✅ hasPrevPage is TRUE</span>
+        {{else}}
+        <span style="color: red;">❌ hasPrevPage is FALSE</span>
+        {{/if}}
+
+        <p><strong>Test 3 - hasNextPage:</strong></p>
+        {{#if hasNextPage}}
+        <span style="color: green;">✅ hasNextPage is TRUE</span>
+        {{else}}
+        <span style="color: red;">❌ hasNextPage is FALSE</span>
+        {{/if}}
+    </div>
+
+    <div class="test-section">
+        <h3>🔢 Page Numbers Array Test:</h3>
+        <p><strong>Raw pageNumbers loop:</strong></p>
+        <div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+        {{#each pageNumbers}}
+        <div style="border-bottom: 1px dotted #ccc; padding: 5px;">
+            <strong>Page {{@index}}:</strong> 
+            number={{this.number}}, 
+            isCurrent={{this.isCurrent}}, 
+            file={{this.file}}
+        </div>
+        {{/each}}
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>🎯 Actual Pagination Render:</h3>
+        
+        <div class="pagination">
+            <!-- Previous Button Test -->
+            <span style="background: #e9ecef; padding: 5px;">PREV TEST: </span>
+            {{#if hasPrevPage}}
+            <a href="{{prevPageFile}}" class="prev">← Previous</a>
+            {{else}}
+            <span class="prev disabled">← Previous</span>
+            {{/if}}
+            
+            <!-- Page Numbers Test -->
+            <span style="background: #e9ecef; padding: 5px; margin-left: 10px;">PAGES TEST: </span>
+            {{#each pageNumbers}}
+            {{#if this.isCurrent}}
+            <span class="current">{{this.number}}</span>
+            {{else}}
+            <a href="{{this.file}}">{{this.number}}</a>
+            {{/if}}
+            {{/each}}
+            
+            <!-- Next Button Test -->
+            <span style="background: #e9ecef; padding: 5px; margin-left: 10px;">NEXT TEST: </span>
+            {{#if hasNextPage}}
+            <a href="{{nextPageFile}}" class="next">Next →</a>
+            {{else}}
+            <span class="next disabled">Next →</span>
+            {{/if}}
+        </div>
+    </div>
+
+    <div class="debug">
+        <h3>📋 Expected Behavior:</h3>
+        <ul>
+            <li>If conditionals show raw {{else}} text, the template engine is not processing them</li>
+            <li>If page numbers don't show, the pageNumbers array is not being processed</li>
+            <li>If variables show {{variableName}}, they are not being set</li>
+        </ul>
+    </div>
+
+</body>
+</html>

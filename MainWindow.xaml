@@ -182,15 +182,115 @@
                     </StackPanel>
                 </Border>
 
+                <!-- Photo Album Generator Section -->
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Photo Album Generator" 
+                                  FontSize="18" 
+                                  FontWeight="SemiBold" 
+                                  Foreground="{StaticResource TextPrimaryBrush}"
+                                  Margin="0,0,0,8"/>
+                        <TextBlock Text="Generate a beautiful HTML photo album from your images" 
+                                  FontSize="14" 
+                                  Foreground="{StaticResource TextSecondaryBrush}"
+                                  Margin="0,0,0,16"/>
+                        
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                <TextBlock Text="Album Title" FontSize="14" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                                <TextBox x:Name="AlbumTitleBox" 
+                                        Text="My Photo Album" 
+                                        Style="{StaticResource WinUITextBoxStyle}"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                <TextBlock Text="Template" FontSize="14" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                                <ComboBox x:Name="TemplateCombo"
+                                         SelectedIndex="0"
+                                         Height="40"
+                                         Background="{StaticResource InputBackgroundBrush}"
+                                         BorderBrush="{StaticResource InputBorderBrush}">
+                                    <ComboBoxItem Content="Modern Gallery" Tag="modern-gallery.html"/>
+                                    <ComboBoxItem Content="Classic Album" Tag="classic-album.html"/>
+                                    <ComboBoxItem Content="Safe Modern Gallery" Tag="safe-modern-gallery.html"/>
+                                    <ComboBoxItem Content="Debug Template" Tag="debug-template.html"/>
+                                    <ComboBoxItem Content="Template Engine Test" Tag="test_template_engine.html"/>
+                                    <ComboBoxItem Content="Michael Leung Gallery" Tag="michael-leung.html"/>
+                                </ComboBox>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <StackPanel Margin="0,0,0,16">
+                            <TextBlock Text="Album Description" FontSize="14" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                            <TextBox x:Name="AlbumDescriptionBox" 
+                                    Text="A collection of beautiful memories"
+                                    Style="{StaticResource WinUITextBoxStyle}"
+                                    Height="60"
+                                    TextWrapping="Wrap"
+                                    AcceptsReturn="True"/>
+                        </StackPanel>
+                        
+                        <!-- Pagination and Image Options -->
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                <TextBlock Text="Photos Per Page" FontSize="14" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                                <ComboBox x:Name="PhotosPerPageCombo"
+                                         SelectedIndex="2"
+                                         Height="40"
+                                         Background="{StaticResource InputBackgroundBrush}"
+                                         BorderBrush="{StaticResource InputBorderBrush}">
+                                    <ComboBoxItem Content="12 photos per page" Tag="12"/>
+                                    <ComboBoxItem Content="24 photos per page" Tag="24"/>
+                                    <ComboBoxItem Content="36 photos per page" Tag="36"/>
+                                    <ComboBoxItem Content="48 photos per page" Tag="48"/>
+                                    <ComboBoxItem Content="All photos (no pagination)" Tag="0"/>
+                                </ComboBox>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                <TextBlock Text="Image Options" FontSize="14" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                                <CheckBox x:Name="CopyOriginalImagesCheckBox" 
+                                         Content="Copy original images with album" 
+                                         IsChecked="True"
+                                         Foreground="{StaticResource TextTertiaryBrush}"
+                                         FontSize="14"
+                                         Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
                 <!-- Action Buttons -->
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
-                    <Button x:Name="StartProcessingButton" 
+                    <Button x:Name="GenerateAlbumButton" 
                            Grid.Column="1"
+                           Content="Generate Album"
+                           Style="{StaticResource SuccessButtonStyle}"
+                           Height="44"
+                           Padding="32,0"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Margin="0,0,12,0"
+                           Click="GenerateAlbumButton_Click"/>
+                    
+                    <Button x:Name="StartProcessingButton" 
+                           Grid.Column="2"
                            Content="Start Processing"
                            Style="{StaticResource PrimaryButtonStyle}"
                            Height="44"
