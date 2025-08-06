@@ -3,7 +3,7 @@
 A professional WPF image resizer application with WinUI-style design, built for handling images of all sizes - from small photos to extremely large AI-generated images.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)
+![.NET](https://img.shields.io/badge/.NET-9.0-purple.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows-lightgrey.svg)
 
 ## ✨ Features
@@ -39,7 +39,7 @@ A professional WPF image resizer application with WinUI-style design, built for 
 
 ### Prerequisites
 - Windows 10/11
-- .NET 8.0 Runtime
+- .NET 9.0 Runtime
 
 ### Installation
 
@@ -72,10 +72,10 @@ dotnet run
 ## 🛠️ Technical Details
 
 ### Dependencies
-- **.NET 8.0**: Modern, high-performance framework
+- **.NET 9.0**: Latest, high-performance framework
 - **WPF**: Windows Presentation Foundation for rich UI
 - **System.Drawing.Common**: Standard image processing
-- **SixLabors.ImageSharp**: Advanced, memory-efficient image processing
+- **SkiaSharp**: Advanced, memory-efficient 2D graphics and image processing
 - **Windows Forms**: For folder selection dialogs
 
 ### Supported Formats
@@ -119,7 +119,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 This application uses several third-party libraries, all with MIT license:
 
-- **Microsoft .NET 8.0, WPF, Windows Forms, System.Drawing.Common**: MIT License
+- **Microsoft .NET 9.0, WPF, Windows Forms, System.Drawing.Common**: MIT License
 - **SkiaSharp**: MIT License
 
 **Perfect License Harmony**: All components use MIT licensing, making this application completely free for both personal and commercial use.
@@ -145,13 +145,19 @@ If you encounter any issues or have questions:
 
 ## 🔄 Changelog
 
+### Version 1.1.0
+- ✅ Upgraded to .NET 9.0 for latest performance improvements
+- ✅ Updated System.Drawing.Common to v9.0.0
+- ✅ Replaced SixLabors.ImageSharp with MIT-licensed SkiaSharp
+- ✅ Fixed duplicate MainWindow launch issue
+- ✅ Perfect MIT license compatibility across all dependencies
+
 ### Version 1.0.0
 - ✅ Initial release
 - ✅ WinUI-style interface
 - ✅ Multi-tier image processing
 - ✅ Comprehensive error handling
 - ✅ Support for extremely large images
-- ✅ MIT License
 
 ---
 

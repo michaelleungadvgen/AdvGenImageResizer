@@ -4,7 +4,7 @@ This project uses several third-party libraries and frameworks. Below are the li
 
 ## Table of Contents
 
-1. [Microsoft .NET 8.0](#microsoft-net-80)
+1. [Microsoft .NET 9.0](#microsoft-net-90)
 2. [Windows Presentation Foundation (WPF)](#windows-presentation-foundation-wpf)
 3. [Windows Forms](#windows-forms)
 4. [System.Drawing.Common](#systemdrawingcommon)
@@ -12,7 +12,7 @@ This project uses several third-party libraries and frameworks. Below are the li
 
 ---
 
-## Microsoft .NET 8.0
+## Microsoft .NET 9.0
 
 **License**: MIT License  
 **Repository**: https://github.com/dotnet/core  
@@ -110,7 +110,7 @@ SOFTWARE.
 
 ## System.Drawing.Common
 
-**Version**: 8.0.0  
+**Version**: 9.0.0  
 **License**: MIT License  
 **Repository**: https://github.com/dotnet/core  
 **NuGet**: https://www.nuget.org/packages/System.Drawing.Common
@@ -180,7 +180,7 @@ SOFTWARE.
 All dependencies use the MIT license, ensuring perfect compatibility:
 
 - ✅ **MIT License** (main project) - Permissive open source license
-- ✅ **MIT License** (.NET, WPF, Windows Forms, System.Drawing.Common) - Compatible
+- ✅ **MIT License** (.NET 9.0, WPF, Windows Forms, System.Drawing.Common) - Compatible
 - ✅ **MIT License** (SkiaSharp) - Compatible
 
 **Perfect License Harmony**: All components use MIT licensing, eliminating any licensing concerns for both personal and commercial use.

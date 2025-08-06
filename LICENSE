@@ -28,7 +28,7 @@ This software uses third-party libraries and frameworks, each with their own
 license terms. Please see THIRD-PARTY-LICENSES.md for the complete license 
 text of all dependencies, including:
 
-- Microsoft .NET 8.0 (MIT License)
+- Microsoft .NET 9.0 (MIT License)
 - Windows Presentation Foundation - WPF (MIT License)  
 - Windows Forms (MIT License)
 - System.Drawing.Common (MIT License)
