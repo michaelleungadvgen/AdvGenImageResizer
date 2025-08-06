@@ -589,6 +589,10 @@ namespace AdvGenImageResizer
                     await GenerateSinglePageAlbum(templatePath, photoInfos, outputPath);
                 }
 
+                // Copy CSS and JS files with same name as template
+                ProgressText.Text = "Copying template assets...";
+                await CopyTemplateAssets(templateName, outputDir);
+                
                 ProgressText.Text = "Album generation completed!";
                 ProcessingProgress.Value = 100;
 
@@ -767,6 +771,73 @@ namespace AdvGenImageResizer
                 len = len / 1024;
             }
             return $"{len:0.##} {sizes[order]}";
+        }
+
+        private async Task CopyTemplateAssets(string templateName, string outputDir)
+        {
+            try
+            {
+                var templateBaseName = Path.GetFileNameWithoutExtension(templateName);
+                var templatesDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates");
+                
+                // Look for CSS file with same name as template
+                var cssFileName = $"{templateBaseName}.css";
+                var cssSourcePath = Path.Combine(templatesDir, cssFileName);
+                if (File.Exists(cssSourcePath))
+                {
+                    var cssDestPath = Path.Combine(outputDir, cssFileName);
+                    await Task.Run(() => File.Copy(cssSourcePath, cssDestPath, overwrite: true));
+                }
+
+                // Look for JS file with same name as template
+                var jsFileName = $"{templateBaseName}.js";
+                var jsSourcePath = Path.Combine(templatesDir, jsFileName);
+                if (File.Exists(jsSourcePath))
+                {
+                    var jsDestPath = Path.Combine(outputDir, jsFileName);
+                    await Task.Run(() => File.Copy(jsSourcePath, jsDestPath, overwrite: true));
+                }
+
+                // Look for any additional assets folders (images, fonts, etc.)
+                var assetsDir = Path.Combine(templatesDir, "assets");
+                if (Directory.Exists(assetsDir))
+                {
+                    var destAssetsDir = Path.Combine(outputDir, "assets");
+                    await CopyDirectory(assetsDir, destAssetsDir);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Don't fail the entire process if asset copying fails, just log it
+                System.Diagnostics.Debug.WriteLine($"Warning: Failed to copy template assets: {ex.Message}");
+            }
+        }
+
+        private async Task CopyDirectory(string sourceDir, string destDir)
+        {
+            if (!Directory.Exists(destDir))
+            {
+                Directory.CreateDirectory(destDir);
+            }
+
+            await Task.Run(() =>
+            {
+                // Copy files
+                foreach (var file in Directory.GetFiles(sourceDir))
+                {
+                    var fileName = Path.GetFileName(file);
+                    var destFile = Path.Combine(destDir, fileName);
+                    File.Copy(file, destFile, overwrite: true);
+                }
+
+                // Copy subdirectories
+                foreach (var subDir in Directory.GetDirectories(sourceDir))
+                {
+                    var dirName = Path.GetFileName(subDir);
+                    var destSubDir = Path.Combine(destDir, dirName);
+                    CopyDirectory(subDir, destSubDir).Wait();
+                }
+            });
         }
 
         private void ShowMessage(string message)
