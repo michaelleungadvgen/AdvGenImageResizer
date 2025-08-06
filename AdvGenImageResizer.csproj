@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>AdvGenImageResizer</RootNamespace>
+    
+    <!-- Project Information -->
+    <AssemblyTitle>AdvGen Image Resizer</AssemblyTitle>
+    <AssemblyDescription>Professional WPF image resizer with WinUI-style design for handling images of all sizes</AssemblyDescription>
+    <AssemblyCompany>AdvGen</AssemblyCompany>
+    <AssemblyProduct>AdvGen Image Resizer</AssemblyProduct>
+    <Copyright>Copyright © 2025 AdvGen</Copyright>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    
+    <!-- Package Information -->
+    <PackageId>AdvGenImageResizer</PackageId>
+    <Authors>AdvGen</Authors>
+    <PackageDescription>A professional WPF image resizer application with WinUI-style design, built for handling images of all sizes - from small photos to extremely large AI-generated images.</PackageDescription>
+    <PackageTags>image;resize;wpf;winui;batch;processing;ai;dalle;midjourney</PackageTags>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+    <PackageReference Include="SkiaSharp" Version="2.88.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="LICENSE" Pack="true" PackagePath="" />
+    <None Include="README.md" Pack="true" PackagePath="" />
+    <None Include="THIRD-PARTY-LICENSES.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>

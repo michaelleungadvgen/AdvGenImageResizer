@@ -1,0 +1,115 @@
+<Application x:Class="AdvGenImageResizer.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <!-- WinUI Style Colors -->
+            <SolidColorBrush x:Key="BackgroundBrush" Color="#f8fafb"/>
+            <SolidColorBrush x:Key="CardBackgroundBrush" Color="#ffffff"/>
+            <SolidColorBrush x:Key="BorderBrush" Color="#e2e8f0"/>
+            <SolidColorBrush x:Key="TextPrimaryBrush" Color="#1e293b"/>
+            <SolidColorBrush x:Key="TextSecondaryBrush" Color="#64748b"/>
+            <SolidColorBrush x:Key="TextTertiaryBrush" Color="#374151"/>
+            <SolidColorBrush x:Key="AccentBrush" Color="#3b82f6"/>
+            <SolidColorBrush x:Key="AccentLightBrush" Color="#dbeafe"/>
+            <SolidColorBrush x:Key="AccentBorderBrush" Color="#93c5fd"/>
+            <SolidColorBrush x:Key="SuccessBrush" Color="#16a34a"/>
+            <SolidColorBrush x:Key="SuccessLightBrush" Color="#f0fdf4"/>
+            <SolidColorBrush x:Key="SuccessBorderBrush" Color="#bbf7d0"/>
+            <SolidColorBrush x:Key="InputBackgroundBrush" Color="#f1f5f9"/>
+            <SolidColorBrush x:Key="InputBorderBrush" Color="#cbd5e1"/>
+            
+            <!-- Button Styles -->
+            <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource AccentLightBrush}"/>
+                <Setter Property="Foreground" Value="#1e40af"/>
+                <Setter Property="BorderBrush" Value="{StaticResource AccentBorderBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Padding" Value="20,0"/>
+                <Setter Property="Height" Value="40"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="6">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#bfdbfe"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+            
+            <Style x:Key="SuccessButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource SuccessLightBrush}"/>
+                <Setter Property="Foreground" Value="#15803d"/>
+                <Setter Property="BorderBrush" Value="{StaticResource SuccessBorderBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Padding" Value="20,0"/>
+                <Setter Property="Height" Value="40"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="6">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#dcfce7"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <!-- TextBox Style -->
+            <Style x:Key="WinUITextBoxStyle" TargetType="TextBox">
+                <Setter Property="Background" Value="{StaticResource InputBackgroundBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Height" Value="40"/>
+                <Setter Property="Padding" Value="12,0"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="TextBox">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="6">
+                                <ScrollViewer x:Name="PART_ContentHost" 
+                                              Margin="{TemplateBinding Padding}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Card Style -->
+            <Style x:Key="CardStyle" TargetType="Border">
+                <Setter Property="Background" Value="{StaticResource CardBackgroundBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="12"/>
+                <Setter Property="Padding" Value="24"/>
+                <Setter Property="Margin" Value="0,0,0,24"/>
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
