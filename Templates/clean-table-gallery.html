@@ -759,7 +759,7 @@
             </div>
 
             {{#each photos}}
-            <div class="photo-row" data-index="{{@index}}" data-src="{{this.relativePath}}" data-title="{{this.title}}">
+            <div class="photo-row" data-index="{{@index}}" data-src="{{this.fullSizePath}}" data-title="{{this.title}}">
                 <img src="{{this.thumbnailPath}}" alt="{{this.title}}" class="photo-thumbnail" loading="lazy">
                 <div class="photo-info">
                     <h3>{{this.title}}</h3>

@@ -692,8 +692,8 @@
     <div class="container">
         <div class="gallery" id="gallery">
             {{#each photos}}
-            <div class="photo-card" data-index="{{@index}}" data-src="{{this.relativePath}}" data-title="{{this.title}}">
-                <img src="{{this.relativePath}}" alt="{{this.title}}" loading="lazy">
+            <div class="photo-card" data-index="{{@index}}" data-src="{{this.fullSizePath}}" data-title="{{this.title}}">
+                <img src="{{this.thumbnailPath}}" alt="{{this.title}}" loading="lazy">
                 <div class="photo-info">
                     <div class="photo-title">{{this.title}}</div>
                     <div class="photo-meta">

@@ -353,8 +353,8 @@
 
         <div class="photo-grid" id="photo-grid">
             {{#each photos}}
-            <div class="photo-frame" data-index="{{@index}}" data-src="{{this.relativePath}}" data-title="{{this.title}}">
-                <img src="{{this.relativePath}}" alt="{{this.title}}" loading="lazy">
+            <div class="photo-frame" data-index="{{@index}}" data-src="{{this.fullSizePath}}" data-title="{{this.title}}">
+                <img src="{{this.thumbnailPath}}" alt="{{this.title}}" loading="lazy">
                 <div class="photo-caption">
                     <div class="photo-title">{{this.title}}</div>
                     <div class="photo-details">

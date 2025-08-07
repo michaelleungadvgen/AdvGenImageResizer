@@ -573,8 +573,13 @@ namespace AdvGenImageResizer
                 {
                     ProgressText.Text = "Copying original images...";
                     await CopyOriginalImages(photoInfos, imagesDir);
-                    ProcessingProgress.Value = 75;
+                    ProcessingProgress.Value = 60;
                 }
+
+                // Generate resized thumbnails for the gallery
+                ProgressText.Text = "Creating thumbnail images...";
+                await GenerateThumbnails(photoInfos, outputDir, 800, 600); // Default thumbnail size
+                ProcessingProgress.Value = 75;
 
                 ProgressText.Text = "Generating HTML album...";
                 
@@ -629,8 +634,8 @@ namespace AdvGenImageResizer
                 FileName = fileName,
                 FilePath = imagePath,
                 RelativePath = copyOriginals ? $"images/{fileName}" : fileName,
-                ThumbnailPath = copyOriginals ? $"images/{fileName}" : fileName,
-                FullSizePath = copyOriginals ? $"images/{fileName}" : fileName,
+                ThumbnailPath = fileName, // Resized thumbnails at root
+                FullSizePath = copyOriginals ? $"images/{fileName}" : fileName, // Full-size in images folder
                 Title = Path.GetFileNameWithoutExtension(imagePath),
                 Description = "",
                 DateTaken = fileInfo.LastWriteTime,
@@ -662,11 +667,35 @@ namespace AdvGenImageResizer
                 var destPath = Path.Combine(imagesDir, photoInfo.FileName);
                 
                 ProgressText.Text = $"Copying {photoInfo.FileName} ({i + 1}/{photoInfos.Count})";
-                ProcessingProgress.Value = 50 + ((double)i / photoInfos.Count) * 25;
+                ProcessingProgress.Value = 50 + ((double)i / photoInfos.Count) * 10;
                 
                 try
                 {
                     await Task.Run(() => File.Copy(photoInfo.FilePath, destPath, overwrite: true));
+                }
+                catch (Exception)
+                {
+                    // Log error but continue with other images
+                    continue;
+                }
+                
+                await Task.Delay(10);
+            }
+        }
+
+        private async Task GenerateThumbnails(List<PhotoInfo> photoInfos, string outputDir, int maxWidth, int maxHeight)
+        {
+            for (int i = 0; i < photoInfos.Count; i++)
+            {
+                var photoInfo = photoInfos[i];
+                var thumbnailPath = Path.Combine(outputDir, photoInfo.FileName);
+                
+                ProgressText.Text = $"Creating thumbnail {photoInfo.FileName} ({i + 1}/{photoInfos.Count})";
+                ProcessingProgress.Value = 60 + ((double)i / photoInfos.Count) * 15;
+                
+                try
+                {
+                    await Task.Run(() => ResizeImage(photoInfo.FilePath, thumbnailPath, maxWidth, maxHeight, true, 0));
                 }
                 catch (Exception)
                 {
